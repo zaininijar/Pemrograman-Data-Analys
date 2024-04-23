@@ -1,0 +1,10 @@
+No,Nama,Detail,Price Per Day,Price Per Month,Picture Path,Available,Active,Sold
+1,Vario 125,Honda Vario 125,50000,1500000,http://localhost:8000/bikes/vario.jpg,1,1,379
+2,Scoopy,Honda Scoopy 110,50000,1500000,http://localhost:8000/bikes/scoopy.jpg,1,1,191
+3,ADV,Honda ADV 160cc,70000,2100000,http://localhost:8000/bikes/adv.jpg,1,1,287
+4,Gear,Yamaha Gear 125 surf rack,50000,1500000,http://localhost:8000/bikes/gear.jpg,1,1,385
+5,Nmax,Yamaha Nmax 155cc,80000,2400000,http://localhost:8000/bikes/nmax.jpg,1,1,329
+6,PCX,Honda PCX 160cc,80000,2400000,http://localhost:8000/bikes/pcx.jpg,1,1,62
+7,XSR,Yamaha XSR 155,100000,3000000,http://localhost:8000/bikes/xsr.jpg,1,1,309
+8,Vespa,Vespa 150cc,100000,3000000,http://localhost:8000/bikes/vesva.jpg,1,1,231
+9,Xmax,maha Xmax 250cc,120000,3600000,http://localhost:8000/bikes/nmax.jpg,1,1,188
