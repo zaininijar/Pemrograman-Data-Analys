@@ -1,59 +1,121 @@
-# Contoh Kasus: Prediksi Harga Rumah dengan Regresi Linear
+### Dokumentasi Skrip Regresi Linear
 
-## Deskripsi Kasus
+#### Pendahuluan
+Skrip ini melakukan analisis regresi linear sederhana untuk memprediksi harga properti berdasarkan luas bangunan. Data properti dibaca dari file CSV, dikonversi ke format numerik yang sesuai, dan diolah untuk menghasilkan model regresi yang dapat digunakan untuk prediksi harga properti di masa mendatang.
 
-Kamu ingin memprediksi harga rumah berdasarkan luas bangunan.
+#### Dependensi
+Skrip ini memerlukan beberapa pustaka Python, yang dapat diinstal menggunakan pip:
 
-## Data
-
-Kamu memiliki dataset yang berisi informasi tentang harga rumah dan luas bangunan. Data ini disajikan dalam bentuk tabel dengan dua kolom: `luas_bangunan` (dalam meter persegi) dan `harga_rumah` (dalam jutaan rupiah).
-
-```markdown
-| luas_bangunan (m²) | harga_rumah (juta) |
-| ------------------ | ------------------ |
-| 50                 | 300                |
-| 60                 | 340                |
-| 70                 | 380                |
-| 80                 | 420                |
-| 90                 | 460                |
-| 100                | 500                |
+```sh
+pip install pandas numpy matplotlib scikit-learn
 ```
 
-## Langkah-langkah
+#### Struktur Skrip
 
-### 1. Mempersiapkan Data
+1. **Import Pustaka**
+    ```python
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_squared_error, r2_score
+    ```
 
-Kita akan memisahkan data menjadi dua variabel: `X` untuk luas bangunan dan `Y` untuk harga rumah.
+2. **Membaca Data dari File CSV**
+    ```python
+    data = pd.read_csv('linear-regression/house.csv')
+    ```
 
-### 2. Menghitung Parameter Regresi
+3. **Mengonversi Harga dari String ke Float**
+    Fungsi `convert_price` mengonversi harga properti dari format string ke float, mengabaikan nilai "Call for Price".
+    ```python
+    def convert_price(price):
+        if pd.isna(price) or price == 'Call for Price':
+            return None
+        price = price.replace(',', '')
+        if ' Lac' in price:
+            return float(price.replace(' Lac', '')) * 100000
+        elif ' Cr' in price:
+            return float(price.replace(' Cr', '')) * 10000000
+        else:
+            return float(price)
+    ```
 
-Kita akan menghitung nilai slope (`b1`) dan intercept (`b0`) menggunakan rumus regresi linear:
+4. **Mengonversi Luas Bangunan dari String ke Float**
+    Fungsi `convert_area` mengonversi luas bangunan dari format string ke float, mengabaikan satuan "sqft" dan "sqm".
+    ```python
+    def convert_area(area):
+        if pd.isna(area):
+            return np.nan
+        if ' sqft' in area:
+            return float(area.replace(' sqft', '').replace(',', ''))
+        elif ' sqm' in area:
+            return float(area.replace(' sqm', '').replace(',', '')) * 10.7639
+        else:
+            return np.nan
+    ```
 
-```
-b1 = (n(ΣXY) - (ΣX)(ΣY)) / (n(ΣX^2) - (ΣX)^2)
-b0 = (ΣY - b1(ΣX)) / n
-```
+5. **Mengonversi Kolom Harga dan Luas Bangunan**
+    ```python
+    data['Amount(in rupees)'] = data['Amount(in rupees)'].apply(convert_price)
+    data['Carpet Area'] = data['Carpet Area'].apply(convert_area)
+    ```
 
-### 3. Membuat Model
+6. **Menghapus Baris dengan Nilai None atau NaN**
+    ```python
+    data = data.dropna(subset=['Amount(in rupees)', 'Carpet Area'])
+    ```
 
-Menggunakan parameter yang telah dihitung untuk membuat model regresi linear:
+7. **Memilih Fitur dan Target**
+    ```python
+    X = data[['Carpet Area']]  # Fitur: Luas bangunan
+    y = data['Amount(in rupees)']  # Target: Harga properti
+    ```
 
-```
-Ŷ = b0 + b1 \* X
-```
+8. **Memisahkan Data untuk Pelatihan dan Pengujian**
+    ```python
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    ```
 
-### 4. Prediksi
+9. **Membuat Model Regresi Linear**
+    ```python
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    ```
 
-Menggunakan model tersebut untuk memprediksi harga rumah berdasarkan luas bangunan yang diberikan.
+10. **Memprediksi Harga Properti**
+    ```python
+    y_pred = model.predict(X_test)
+    ```
 
-### Output
+11. **Menghitung Kesalahan Kuadrat Rata-rata dan Skor R^2**
+    ```python
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    ```
 
-- Slope (`b1`) akan memberikan kemiringan garis regresi.
-- Intercept (`b0`) akan memberikan titik potong dengan sumbu Y.
-- Prediksi harga rumah untuk luas bangunan 85 m².
+12. **Menampilkan Hasil**
+    ```python
+    print(f"Mean Squared Error (MSE): {mse}")
+    print(f"R-squared (R^2) Score: {r2}")
+    print(f"Slope (b1): {model.coef_[0]}")
+    print(f"Intercept (b0): {model.intercept_}")
+    ```
 
-Plot akan menampilkan data asli sebagai titik biru dan garis regresi sebagai garis merah.
+13. **Plot Data dan Garis Regresi**
+    ```python
+    plt.scatter(X, y, color='blue', label='Data Aktual')
+    plt.plot(X_test, y_pred, color='red', linewidth=2, label='Garis Regresi')
+    plt.xlabel('Carpet Area (sqft)')
+    plt.ylabel('Amount (in rupees)')
+    plt.title('Regresi Linear: Prediksi Harga Properti')
+    plt.legend()
+    plt.show()
+    ```
 
-## Kesimpulan
+#### Output
+![Alt text](./output/output.png "Title")
 
-Dengan menggunakan regresi linear, kita dapat memprediksi harga rumah berdasarkan luas bangunan. Model yang dibuat menggunakan data sampel dapat digunakan untuk estimasi harga rumah baru dengan luas tertentu.
+#### Kesimpulan
+Skrip ini membaca data properti dari file CSV, mengonversi data yang diperlukan ke dalam format numerik, dan membangun model regresi linear untuk memprediksi harga properti berdasarkan luas bangunan. Hasil model ditampilkan dalam bentuk metrik evaluasi dan plot garis regresi terhadap data aktual.
